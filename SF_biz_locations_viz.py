@@ -9,6 +9,7 @@ import re
 from scipy.stats import gaussian_kde
 from sklearn.cluster import KMeans
 from copy import deepcopy
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.basemap import Basemap
 from datetime import datetime
 from os import listdir
@@ -23,7 +24,8 @@ start_time = time.time()
 plt.rcParams['figure.figsize'] = (9, 16)
 mpl.style.use('ggplot')
 
-mypath = r'/users/joebuty/documents/joe/TuneIn/'
+# mypath = r'/users/joebuty/documents/joe/TuneIn/'
+mypath = r'/users/joebuty/GitHub/SF_Businesses/'
 
 #read csv with door location data
 o_df = pd.read_csv(mypath + 'formatted_sf_biz.csv')
@@ -115,11 +117,20 @@ plt.legend()
 #################################################################################
 sf_3 = build_basemap()
 density = gaussian_kde(xy)(xy)
-
-sf_3.hexbin(biz_lon, biz_lat, C=density, gridsize=45, cmap=plt.cm.jet, zorder=6)
+norm = mpl.colors.Normalize(vmin=density.min(), vmax=density.max())
+cmap = plt.cm.jet
+sf_3.hexbin(biz_lon, biz_lat, C=density, gridsize=45, cmap=cmap, zorder=6)
 plt.title('Business Location Density in San Francisco',
           fontdict={'fontsize': 18})
-cb = plt.colorbar(sf_3)
+sm = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+sm.set_array([]) # can be an empty list
+ax = plt.gca()
+im = ax.imshow(np.arange(100).reshape((10,10)), cmap=cmap, norm=norm)
+divider = make_axes_locatable(ax)
+cax = divider.append_axes("right", size="5%", pad=0.05)
+
+cb = plt.colorbar(im, cax=cax, orientation='vertical')
+# cb = plt.colorbar(plt.cm.jet)
 cb.set_label('counts')
 
 print '\n', 'Total Runtime:', '\n'
