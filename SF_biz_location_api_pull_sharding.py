@@ -12,14 +12,19 @@ from os.path import isfile, join
 start_time = time.time()
 print '\n\n\t', 'Start Time: ', start_time, '\n'
 # Set ipython's max row display to
-pd.set_option('display.max_row', 24)
+pd.set_option('display.max_row', 10)
 # Set iPython's max column width to:
-pd.set_option('display.max_columns', 50)
+pd.set_option('display.max_columns', 5)
 
-mypath = r'/users/joebuty/documents/joe/TuneIn/'
-shard_file_path = r'/users/joebuty/documents/joe/TuneIn/shards/'
+mypath = r'/users/joebuty/GitHub/SF_Businesses/'
+shard_file_path = r'/users/joebuty/GitHub/SF_Businesses/shards/'
 
 # zipcodes that are located in SF. 
+# The input data has bee cleaned  from the original source data. The business category
+# data for columns <NAICS Code> and <NAICS Code Description> by reclassifying businesses 
+# with multiple <NAICS Code> entries. We took the first code and added the corresponding 
+# NAICS Code Description.
+
 o_df = pd.read_csv(mypath + 'sf business dataset.csv')
 # print df['Business Location']
 
@@ -118,24 +123,32 @@ print 'Initial Index: ', init_idx
 print 'This part is very slow like a second per line... Go to make coffee and shower.'
 print 'Running:'
 
-
-for i in range(0, 10):
+df_shard = pd.DataFrame()
+for i in range(0, 3):
 	start_idx = (i * step_size) + 1
-	print 'shard {} of {}'.format(i, shard_count)
 	if init_idx > 0: # if shards have been previously created, add those to the index
 # 		print i, step_size, start_idx
 		start_idx += init_idx
-	df_shard = uni_loc[start_idx : start_idx + step_size].copy()
-	print 'call index {}:{}'.format(str(start_idx), str(start_idx + step_size))
-	df_shard = pd.concat([df_shard, find_coordinates(df_shard)])
-	if i % 3 == 0:
+	print 'shard {} of {}'.format(i, shard_count), \
+		'call index {}:{}'.format(str(start_idx), str(start_idx + step_size))
+	df_call = uni_loc[start_idx : start_idx + step_size].copy()
+	df_call = find_coordinates(df_call)
+	print '- /- ' * 10
+	print df_call
+	print df_shard
+	df_shard = pd.concat([df_shard, df_call])
+	print '* /* ' * 10
+	print df_shard
+	if i % 3 == 2:
 		current_shard +=1
 		shard_file_name = shard_file_path+str('shard_{}_end_idx_{}'.format(current_shard, start_idx + step_size - 1)+'.csv')
 		print 'write file: ', shard_file_name
+		print df_shard
 		df_shard.to_csv(shard_file_name)
+		df_shard = pd.DataFrame()
 	else:
 		pass
-		print i, '\t', i, shard_count, i % shard_count
+# 		print i, '\t', i, shard_count, i % shard_count
 print '\n'
 
 ### 429 Error Too many requests. For more on usage see below link.
