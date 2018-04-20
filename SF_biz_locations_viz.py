@@ -84,8 +84,8 @@ biz_lon, biz_lat = sf_1(datax, datay)
 # Build plot
 #################################################################################
 sf_1.scatter(biz_lon, biz_lat, s=1, marker='o', color = 'b', zorder=2)
-plt.title('Business Locations in San Francisco',
-          fontsize=18)
+plt.title('Business Locations in San Francisco', fontsize=18)
+plt.savefig('All_SF_businesses_plot.png')
 #################################################################################
 # Number of clusters
 k = 10
@@ -114,6 +114,7 @@ sf_2.scatter(biz_lon, biz_lat, s=5, marker='o', c = closest_clusters, alpha=0.75
 sf_2.scatter(km_lon, km_lat, s=200, marker='o', color="r", alpha=0.75, label='Cluster Centroid', zorder=4)
 plt.title('Business Clusters', fontdict={'fontsize': 18})
 plt.legend()
+plt.savefig('Cluster_SF_businesses_plot.png')
 #################################################################################
 sf_3 = build_basemap()
 density = gaussian_kde(xy)(xy)
@@ -132,7 +133,7 @@ cax = divider.append_axes("right", size="5%", pad=0.05)
 cb = plt.colorbar(im, cax=cax, orientation='vertical')
 # cb = plt.colorbar(plt.cm.jet)
 cb.set_label('counts')
-
+plt.savefig('SF_businesses_heatmap.png')
 print '\n', 'Total Runtime:', '\n'
 print("--- %s seconds ---" % (time.time() - start_time))
 plt.show()
